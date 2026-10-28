@@ -1,0 +1,112 @@
+@use "sass:color";
+
+$color-principal: #1f4e79;
+$color-secundario: #2e86c1;
+$color-fondo: #f4f6fb;
+$color-texto: #1e293b;
+$radio: 12px;
+$sombra: 0 4px 16px rgba(15, 23, 42, 0.08);
+
+@mixin tarjeta {
+  background: #fff;
+  border: none;
+  border-radius: $radio;
+  box-shadow: $sombra;
+}
+
+body {
+  background: $color-fondo;
+  color: $color-texto;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.barra-principal {
+  background: linear-gradient(90deg, $color-principal, $color-secundario);
+
+  .navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-link {
+    opacity: 0.85;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.5rem;
+  }
+}
+
+.card,
+.tarjeta {
+  @include tarjeta;
+}
+
+.tarjeta {
+  padding: 1.5rem;
+}
+
+.hero {
+  @include tarjeta;
+  padding: 2rem;
+  background: linear-gradient(135deg, $color-principal, $color-secundario);
+  color: #fff;
+
+  h1 {
+    font-weight: 700;
+  }
+
+  p {
+    opacity: 0.9;
+    margin-bottom: 0;
+  }
+}
+
+.titulo-seccion {
+  font-weight: 700;
+  color: $color-principal;
+  margin-bottom: 1.25rem;
+
+  i {
+    margin-right: 0.5rem;
+  }
+}
+
+.btn-primary {
+  background-color: $color-principal;
+  border-color: $color-principal;
+
+  &:hover {
+    background-color: color.adjust($color-principal, $lightness: -8%);
+    border-color: color.adjust($color-principal, $lightness: -8%);
+  }
+}
+
+.nav-tabs {
+  .nav-link {
+    color: $color-texto;
+
+    &.active {
+      color: $color-principal;
+      font-weight: 600;
+    }
+  }
+}
+
+.list-group {
+  border-radius: $radio;
+  box-shadow: $sombra;
+}
+
+.icono-marca {
+  font-size: 3rem;
+  color: $color-secundario;
+}
