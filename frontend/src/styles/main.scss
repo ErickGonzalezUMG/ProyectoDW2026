@@ -110,3 +110,25 @@ body {
   font-size: 3rem;
   color: $color-secundario;
 }
+
+.tabla-disponibilidad {
+  th,
+  td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .celda-disp {
+    height: 34px;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      background: color.adjust($color-secundario, $lightness: 35%);
+    }
+
+    &.activa {
+      background: $color-secundario;
+    }
+  }
+}

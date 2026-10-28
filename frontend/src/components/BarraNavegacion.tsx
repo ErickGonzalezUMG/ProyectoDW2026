@@ -35,6 +35,11 @@ function BarraNavegacion() {
                 <i className="bi bi-journal-text me-1"></i>Ofertas
               </Nav.Link>
             )}
+            {puedeOfertar && (
+              <Nav.Link as={Link} to="/disponibilidad">
+                <i className="bi bi-calendar-week me-1"></i>Disponibilidad
+              </Nav.Link>
+            )}
             {esAdmin && (
               <Nav.Link as={Link} to="/admin">
                 <i className="bi bi-gear me-1"></i>Administración

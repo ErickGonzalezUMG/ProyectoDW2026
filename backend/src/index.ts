@@ -8,6 +8,9 @@ import categoriasRoutes from './routes/categorias'
 import adminRoutes from './routes/admin'
 import ofertasRoutes from './routes/ofertas'
 import buscarRoutes from './routes/buscar'
+import disponibilidadRoutes from './routes/disponibilidad'
+import tutoriasRoutes from './routes/tutorias'
+import suscripcionesRoutes from './routes/suscripciones'
 
 const app = express()
 
@@ -26,6 +29,9 @@ app.use('/api/categorias', categoriasRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/ofertas', ofertasRoutes)
 app.use('/api/buscar', buscarRoutes)
+app.use('/api/disponibilidad', disponibilidadRoutes)
+app.use('/api/tutorias', tutoriasRoutes)
+app.use('/api/suscripciones', suscripcionesRoutes)
 
 const PORT = Number(process.env.PORT) || 3001
 

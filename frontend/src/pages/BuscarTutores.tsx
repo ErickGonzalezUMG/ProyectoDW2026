@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button, Card, Badge, Alert } from 'react-boo
 import { useAuth } from '../context/AuthContext'
 import MapaBusqueda from '../components/MapaBusqueda'
 import { obtenerRuta } from '../utils/rutas'
+import VentanaAgendar from '../components/VentanaAgendar'
 import type { Categoria, Coordenada, Modalidad, ResultadoBusqueda } from '../types'
 
 const etiquetas: Record<Modalidad, string> = {
@@ -29,6 +30,7 @@ function BuscarTutores() {
   const [error, setError] = useState<string>('')
   const [ruta, setRuta] = useState<[number, number][] | null>(null)
   const [distanciaReal, setDistanciaReal] = useState<number | null>(null)
+  const [agendando, setAgendando] = useState<ResultadoBusqueda | null>(null)
 
   const principales = categorias.filter(c => c.padre === null)
   const hijas = principal ? categorias.filter(h => h.padre === principal) : []
@@ -228,7 +230,18 @@ function BuscarTutores() {
                   <Badge bg="primary">{etiquetas[r.modalidad]}</Badge>
                 </div>
 
-                <Card.Title className="h6">{r.titulo}</Card.Title>
+                <div className="d-flex justify-content-between align-items-start">
+                  <Card.Title className="h6">{r.titulo}</Card.Title>
+                  <Button
+                    size="sm"
+                    onClick={e => {
+                      e.stopPropagation()
+                      setAgendando(r)
+                    }}
+                  >
+                    Agendar
+                  </Button>
+                </div>
                 {r.descripcion && <Card.Text className="small">{r.descripcion}</Card.Text>}
 
                 {distanciaDe(r) !== null && (
@@ -273,6 +286,11 @@ function BuscarTutores() {
           )}
         </Col>
       </Row>
+    <VentanaAgendar
+        oferta={agendando}
+        distanciaKm={agendando ? distanciaDe(agendando) : null}
+        onCerrar={() => setAgendando(null)}
+      />
     </Container>
   )
 }
