@@ -4,6 +4,7 @@ import { Types } from 'mongoose'
 import Oferta from '../models/Oferta'
 import Usuario from '../models/Usuario'
 import Categoria from '../models/Categoria'
+import Resena from '../models/Resena'
 import { validarToken } from '../middleware/validarToken'
 import type { RequestAutenticado } from '../middleware/validarToken'
 import { permitirRoles } from '../middleware/permitirRoles'
@@ -82,6 +83,7 @@ router.get(
     const precioMax = numero(req.query.precioMax)
     const modalidad = texto(req.query.modalidad)
     const categoria = texto(req.query.categoria)
+    const minCalificacion = numero(req.query.calificacionMin)
 
     const filtro: Record<string, unknown> = { activa: true }
 
@@ -116,11 +118,21 @@ router.get(
       return padre ? `${padre.nombre} › ${c.nombre}` : c.nombre
     }
 
+    const estadisticas = await Resena.aggregate<{ _id: Types.ObjectId; promedio: number; cantidad: number }>([
+      { $group: { _id: '$tutor', promedio: { $avg: '$calificacion' }, cantidad: { $sum: 1 } } },
+    ])
+    const calificaciones = new Map(estadisticas.map(s => [String(s._id), s]))
+
     const resultados = []
 
     for (const o of ofertas) {
       const t = o.tutor
       if (!t || (!t.aprobado && t.rol !== 'admin') || t.estado !== 'activo') continue
+
+      const stat = calificaciones.get(String(t._id))
+      const promedio = stat ? redondear(stat.promedio) : 0
+      const cantidad = stat ? stat.cantidad : 0
+      if (minCalificacion !== null && promedio < minCalificacion) continue
 
       const presencial = o.modalidad !== 'virtual'
       let distancia: number | null = null
@@ -150,6 +162,8 @@ router.get(
           _id: String(t._id),
           nombre: t.nombre,
           foto: t.foto,
+          calificacion: promedio,
+          resenas: cantidad,
           biografia: t.biografia,
           latitud: t.latitud,
           longitud: t.longitud,

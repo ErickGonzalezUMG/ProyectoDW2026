@@ -9,6 +9,7 @@ import Admin from './pages/Admin'
 import MisOfertas from './pages/MisOfertas'
 import BuscarTutores from './pages/BuscarTutores'
 import Disponibilidad from './pages/Disponibilidad'
+import Calendario from './pages/Calendario'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/admin" element={<RutaPrivada roles={['admin']}><Admin /></RutaPrivada>} />
         <Route path="/ofertas" element={<RutaPrivada roles={['tutor', 'admin']}><MisOfertas /></RutaPrivada>} />
         <Route path="/buscar" element={<RutaPrivada roles={['estudiante', 'admin']}><BuscarTutores /></RutaPrivada>} />
+        <Route path="/calendario" element={<RutaPrivada><Calendario /></RutaPrivada>} />
         <Route path="/disponibilidad" element={<RutaPrivada roles={['tutor', 'admin']}><Disponibilidad /></RutaPrivada>} />
       </Routes>
     </BrowserRouter>

@@ -37,7 +37,8 @@ export interface Oferta {
   tarifaHora: number
   tarifaKm: number
   activa: boolean
-  tutor?: { _id: string; nombre: string }}
+  tutor?: { _id: string; nombre: string }
+}
 
 export interface Coordenada {
   lat: number
@@ -62,5 +63,33 @@ export interface ResultadoBusqueda {
     biografia: string
     latitud: number | null
     longitud: number | null
+    calificacion: number
+    resenas: number
   }
+}
+
+export type EstadoTutoria = 'pendiente' | 'aprobada' | 'rechazada' | 'cancelada' | 'completada'
+
+export interface Tutoria {
+  _id: string
+  oferta: { _id: string; titulo: string; modalidad: Modalidad } | null
+  tutor: { _id: string; nombre: string }
+  estudiante: { _id: string; nombre: string }
+  inicio: string
+  fin: string
+  estado: EstadoTutoria
+  suscripcion: string | null
+  tarifaHora: number
+  distanciaKm: number
+  traslado: number
+  total: number
+}
+
+export interface Resena {
+  _id: string
+  tutoria: string
+  tutor: string
+  estudiante: string
+  calificacion: number
+  comentario: string
 }

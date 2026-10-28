@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext'
 import MapaBusqueda from '../components/MapaBusqueda'
 import { obtenerRuta } from '../utils/rutas'
 import VentanaAgendar from '../components/VentanaAgendar'
+import Estrellas from '../components/Estrellas'
+import { NOMBRE_SISTEMA } from '../config'
 import type { Categoria, Coordenada, Modalidad, ResultadoBusqueda } from '../types'
 
 const etiquetas: Record<Modalidad, string> = {
@@ -22,6 +24,7 @@ function BuscarTutores() {
   const [radio, setRadio] = useState<string>('10')
   const [precioMin, setPrecioMin] = useState<string>('')
   const [precioMax, setPrecioMax] = useState<string>('')
+  const [calificacionMin, setCalificacionMin] = useState<string>('')
 
   const [origen, setOrigen] = useState<Coordenada | null>(null)
   const [resultados, setResultados] = useState<ResultadoBusqueda[]>([])
@@ -45,6 +48,17 @@ function BuscarTutores() {
     return Math.round(d * r.tarifaKm * 100) / 100
   }
 
+  function compartirWhatsApp(r: ResultadoBusqueda): void {
+    const calificacion =
+      r.tutor.resenas > 0 ? ` Calificación: ${r.tutor.calificacion.toFixed(1)} de 5.` : ''
+    const mensaje =
+      `Te recomiendo a ${r.tutor.nombre} en ${NOMBRE_SISTEMA}: "${r.titulo}" ` +
+      `(${r.categoria}), Q${r.tarifaHora.toFixed(2)} por hora.${calificacion} ` +
+      `${window.location.origin}`
+    const enlace = `https://wa.me/?text=${encodeURIComponent(mensaje)}`
+    window.open(enlace, '_blank', 'noopener,noreferrer')
+  }
+
   async function buscar(centro: Coordenada | null): Promise<void> {
     setError('')
     setCargando(true)
@@ -57,6 +71,7 @@ function BuscarTutores() {
     params.set('radio', radio || '10')
     if (precioMin) params.set('precioMin', precioMin)
     if (precioMax) params.set('precioMax', precioMax)
+    if (calificacionMin) params.set('calificacionMin', calificacionMin)
     if (modalidad) params.set('modalidad', modalidad)
     const categoria = subcategoria || principal
     if (categoria) params.set('categoria', categoria)
@@ -180,6 +195,16 @@ function BuscarTutores() {
               <Form.Control type="number" min="0" value={precioMax} onChange={e => setPrecioMax(e.target.value)} />
             </Col>
 
+            <Col md={2}>
+              <Form.Label>Calificación</Form.Label>
+              <Form.Select value={calificacionMin} onChange={e => setCalificacionMin(e.target.value)}>
+                <option value="">Cualquiera</option>
+                <option value="3">3 o más</option>
+                <option value="4">4 o más</option>
+                <option value="4.5">4.5 o más</option>
+              </Form.Select>
+            </Col>
+
             <Col md="auto" className="d-flex align-items-end">
               <Button type="submit" disabled={cargando}>
                 <i className="bi bi-search me-1"></i>{cargando ? 'Buscando...' : 'Buscar'}
@@ -226,21 +251,35 @@ function BuscarTutores() {
                   <div className="flex-grow-1">
                     <strong>{r.tutor.nombre}</strong>
                     <div className="text-muted small">{r.categoria}</div>
+                    <Estrellas valor={r.tutor.calificacion} cantidad={r.tutor.resenas} />
                   </div>
                   <Badge bg="primary">{etiquetas[r.modalidad]}</Badge>
                 </div>
 
                 <div className="d-flex justify-content-between align-items-start">
                   <Card.Title className="h6">{r.titulo}</Card.Title>
-                  <Button
-                    size="sm"
-                    onClick={e => {
-                      e.stopPropagation()
-                      setAgendando(r)
-                    }}
-                  >
-                    Agendar
-                  </Button>
+                  <div className="d-flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline-success"
+                      title="Compartir por WhatsApp"
+                      onClick={e => {
+                        e.stopPropagation()
+                        compartirWhatsApp(r)
+                      }}
+                    >
+                      <i className="bi bi-whatsapp"></i>
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={e => {
+                        e.stopPropagation()
+                        setAgendando(r)
+                      }}
+                    >
+                      Agendar
+                    </Button>
+                  </div>
                 </div>
                 {r.descripcion && <Card.Text className="small">{r.descripcion}</Card.Text>}
 
@@ -286,7 +325,8 @@ function BuscarTutores() {
           )}
         </Col>
       </Row>
-    <VentanaAgendar
+
+      <VentanaAgendar
         oferta={agendando}
         distanciaKm={agendando ? distanciaDe(agendando) : null}
         onCerrar={() => setAgendando(null)}

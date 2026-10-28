@@ -25,6 +25,11 @@ function BarraNavegacion() {
                 <i className="bi bi-house-door me-1"></i>Inicio
               </Nav.Link>
             )}
+            {conSesion && (
+              <Nav.Link as={Link} to="/calendario">
+                <i className="bi bi-calendar3 me-1"></i>Calendario
+              </Nav.Link>
+            )}
             {puedeBuscar && (
               <Nav.Link as={Link} to="/buscar">
                 <i className="bi bi-search me-1"></i>Buscar tutores
