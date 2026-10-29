@@ -2,14 +2,17 @@
 
 Plataforma web tipo *marketplace* educativo que conecta a **estudiantes** con **tutores**: el estudiante busca tutores por categoría, calificación y cercanía, agenda clases y las reseña; el tutor publica ofertas, define su disponibilidad y atiende solicitudes; el administrador aprueba tutores, modera la comunidad y consulta analíticas.
 
-## Enlaces
+## Entregables y enlaces
 
-| Recurso | Dirección |
+| Entregable / recurso | Dirección o ubicación |
 |---|---|
 | Sitio publicado (frontend, Netlify) | https://9490-20-2571-proyectofinaldw.netlify.app/ |
 | API publicada (backend, Render) | https://tutorgo-api-vqwv.onrender.com/ |
 | Comprobación de la API | https://tutorgo-api-vqwv.onrender.com/api/salud |
 | Repositorio | https://github.com/ErickGonzalezUMG/ProyectoDW2026 |
+| Código fuente | Repositorio: [`backend/`](backend) (API) y [`frontend/`](frontend) (aplicación web) |
+| Manual técnico (PDF) | [`documentacion/Manual_Tecnico_TutorGO.pdf`](documentacion/Manual_Tecnico_TutorGO.pdf) |
+| Manual de usuario (PDF) | [`documentacion/Manual_Usuario_TutorGO.pdf`](documentacion/Manual_Usuario_TutorGO.pdf) |
 
 > Si la API estuvo inactiva, la primera petición puede tardar unos segundos en responder mientras el servicio se reactiva.
 
@@ -143,5 +146,5 @@ Cada `git push` a la rama `main` vuelve a desplegar ambos servicios automáticam
 
 ## Documentación adicional
 
-- **Manual técnico:** esquema y descripción de componentes, uso de TypeScript y SCSS, y diagrama entidad-relación.
-- **Manual de usuario:** guía paso a paso por rol, con capturas de pantalla.
+- **Manual técnico** ([PDF](documentacion/Manual_Tecnico_TutorGO.pdf)): esquema y descripción de componentes, uso de TypeScript y SCSS, y diagrama entidad-relación.
+- **Manual de usuario** ([PDF](documentacion/Manual_Usuario_TutorGO.pdf)): guía paso a paso por rol, con capturas de pantalla.
