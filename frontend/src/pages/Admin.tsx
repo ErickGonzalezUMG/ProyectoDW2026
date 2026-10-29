@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import AdminCategorias from '../components/AdminCategorias'
 import AdminTutores from '../components/AdminTutores'
 import Moderacion from '../components/Moderacion'
+import Analiticas from '../components/Analiticas'
 
 function Admin() {
   const { estado } = useAuth()
@@ -27,6 +28,9 @@ function Admin() {
           </Tab>
           <Tab eventKey="moderacion" title="Moderación" mountOnEnter>
             <Moderacion />
+          </Tab>
+          <Tab eventKey="analiticas" title="Analíticas" mountOnEnter>
+            <Analiticas />
           </Tab>
         </Tabs>
       </div>

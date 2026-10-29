@@ -15,6 +15,7 @@ import resenasRoutes from './routes/resenas'
 import denunciasRoutes from './routes/denuncias'
 import apelacionesRoutes from './routes/apelaciones'
 import moderacionRoutes from './routes/moderacion'
+import analiticasRoutes from './routes/analiticas'
 
 const app = express()
 
@@ -40,6 +41,7 @@ app.use('/api/resenas', resenasRoutes)
 app.use('/api/denuncias', denunciasRoutes)
 app.use('/api/apelaciones', apelacionesRoutes)
 app.use('/api/moderacion', moderacionRoutes)
+app.use('/api/analiticas', analiticasRoutes)
 
 const PORT = Number(process.env.PORT) || 3001
 
