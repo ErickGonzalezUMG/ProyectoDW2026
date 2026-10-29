@@ -7,7 +7,7 @@ import { soloAdmin } from '../middleware/soloAdmin'
 
 const router = Router()
 
-router.get('/', async (_req: Request, res: Response): Promise<void> => {
+router.get('/', validarToken, async (_req: Request, res: Response): Promise<void> => {
   const categorias = await Categoria.find().sort({ nombre: 1 })
   res.json({ categorias })
 })
