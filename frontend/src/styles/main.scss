@@ -160,3 +160,135 @@ body {
     padding: 1rem;
   }
 }
+
+
+// Chat flotante
+.chat-fab {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 1050;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-principal, $color-secundario);
+  color: #fff;
+  font-size: 1.5rem;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .chat-fab-insignia {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 0.7rem;
+  }
+}
+
+.chat-panel {
+  position: fixed;
+  left: 1rem;
+  bottom: 5rem;
+  z-index: 1050;
+  width: 360px;
+  height: 500px;
+  max-height: calc(100vh - 6rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  border-radius: $radio;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.3);
+
+  @media (max-width: 575.98px) {
+    inset: 0;
+    width: auto;
+    height: auto;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .chat-cabecera {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(90deg, $color-principal, $color-secundario);
+    color: #fff;
+  }
+
+  .chat-resumen {
+    min-width: 0;
+  }
+
+  .chat-cuerpo {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-lista {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .avatar-inicial {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: $color-secundario;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+
+  .chat-mensajes {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem;
+    background: $color-fondo;
+  }
+
+  .chat-entrada {
+    padding: 0.5rem;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .burbuja {
+    max-width: 85%;
+    width: fit-content;
+    padding: 0.4rem 0.7rem;
+    margin-bottom: 0.5rem;
+    border-radius: $radio;
+    word-break: break-word;
+    white-space: pre-wrap;
+
+    small {
+      display: block;
+      text-align: right;
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    &.mia {
+      margin-left: auto;
+      background: $color-secundario;
+      color: #fff;
+
+      .leido {
+        color: #9be7ff;
+      }
+    }
+
+    &.otra {
+      background: #fff;
+      box-shadow: $sombra;
+    }
+  }
+}

@@ -6,6 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import esLocale from '@fullcalendar/core/locales/es'
 import type { EventClickArg, EventInput } from '@fullcalendar/core'
 import { useAuth } from '../context/AuthContext'
+import { useChat } from '../context/ChatContext'
 import Ventana from '../components/Ventana'
 import ResenaClase from '../components/ResenaClase'
 import DenunciarClase from '../components/DenunciarClase'
@@ -71,6 +72,7 @@ function estadoVisible(t: Tutoria): EstadoTutoria {
 function Calendario() {
   const { estado: sesion, peticion } = useAuth()
   const esMovil = usarEsMovil()
+  const { abrirChat } = useChat()
   const rol = sesion.usuario?.rol
 
   const [tutorias, setTutorias] = useState<Tutoria[]>([])
@@ -276,6 +278,18 @@ function Calendario() {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={cerrarDetalle}>Cerrar</Button>
+              {sesion.usuario && sesion.usuario.rol !== 'admin' && (
+                <Button
+                  variant="outline-primary"
+                  onClick={() => {
+                    const otro = seleccionada.tutor._id === sesion.usuario?.id ? seleccionada.estudiante : seleccionada.tutor
+                    cerrarDetalle()
+                    abrirChat(otro._id)
+                  }}
+                >
+                  <i className="bi bi-chat-dots me-1"></i>Enviar mensaje
+                </Button>
+              )}
               {puedeResponder && seleccionada.estado === 'pendiente' && esFutura(seleccionada) && (
                 <>
                   <Button variant="success" onClick={() => cambiar(seleccionada._id, 'aprobada')}>

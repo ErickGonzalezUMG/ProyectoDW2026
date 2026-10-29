@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { createServer } from 'http'
 import express from 'express'
 import cors from 'cors'
 import conectarDB from './config/db'
@@ -16,6 +17,8 @@ import denunciasRoutes from './routes/denuncias'
 import apelacionesRoutes from './routes/apelaciones'
 import moderacionRoutes from './routes/moderacion'
 import analiticasRoutes from './routes/analiticas'
+import chatRoutes from './routes/chat'
+import { iniciarSockets } from './sockets'
 
 const app = express()
 
@@ -42,9 +45,13 @@ app.use('/api/denuncias', denunciasRoutes)
 app.use('/api/apelaciones', apelacionesRoutes)
 app.use('/api/moderacion', moderacionRoutes)
 app.use('/api/analiticas', analiticasRoutes)
+app.use('/api/chat', chatRoutes)
 
 const PORT = Number(process.env.PORT) || 3001
 
-app.listen(PORT, () => {
+const servidor = createServer(app)
+iniciarSockets(servidor)
+
+servidor.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`)
 })

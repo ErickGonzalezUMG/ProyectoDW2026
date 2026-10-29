@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Container, Row, Col, Form, Button, Card, Badge, Alert } from 'react-bootstrap'
 import { useAuth } from '../context/AuthContext'
+import { useChat } from '../context/ChatContext'
 import MapaBusqueda from '../components/MapaBusqueda'
 import { obtenerRuta } from '../utils/rutas'
 import VentanaAgendar from '../components/VentanaAgendar'
@@ -16,6 +17,7 @@ const etiquetas: Record<Modalidad, string> = {
 
 function BuscarTutores() {
   const { peticion } = useAuth()
+  const { abrirChat } = useChat()
 
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [principal, setPrincipal] = useState<string>('')
@@ -272,6 +274,17 @@ function BuscarTutores() {
                 <div className="d-flex justify-content-between align-items-start">
                   <Card.Title className="h6">{r.titulo}</Card.Title>
                   <div className="d-flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      title="Enviar mensaje al tutor"
+                      onClick={e => {
+                        e.stopPropagation()
+                        abrirChat(r.tutor._id)
+                      }}
+                    >
+                      <i className="bi bi-chat-dots"></i>
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline-success"

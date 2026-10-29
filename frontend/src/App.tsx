@@ -12,12 +12,14 @@ import Disponibilidad from './pages/Disponibilidad'
 import Calendario from './pages/Calendario'
 import Suspendido from './pages/Suspendido'
 import Politicas from './pages/Politicas'
+import ChatFlotante from './components/ChatFlotante'
 
 function App() {
   return (
     <BrowserRouter>
       <VigilanteSesion />
       <BarraNavegacion />
+      <ChatFlotante />
       <Routes>
         <Route path="/" element={<RutaPrivada><Inicio /></RutaPrivada>} />
         <Route path="/login" element={<Login />} />
