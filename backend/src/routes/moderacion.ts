@@ -16,7 +16,16 @@ router.use(validarToken, soloAdmin)
 
 router.get('/denuncias', async (req: Request, res: Response): Promise<void> => {
   const filtro: Record<string, unknown> = {}
-  if (req.query.estado !== 'todas') {
+  const usuario = typeof req.query.usuario === 'string' ? req.query.usuario : ''
+
+  if (usuario) {
+    // Historial de un usuario: reportes que hizo y reportes que recibió, de cualquier estado
+    if (!Types.ObjectId.isValid(usuario)) {
+      res.status(400).json({ error: 'id_invalido' })
+      return
+    }
+    filtro.$or = [{ denunciado: usuario }, { denunciante: usuario }]
+  } else if (req.query.estado !== 'todas') {
     filtro.estado = 'pendiente'
   }
 

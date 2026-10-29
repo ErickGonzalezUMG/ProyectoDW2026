@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import { Alert, Badge, Button, Form, Spinner, Table, Tab, Tabs } from 'react-bootstrap'
 import { useAuth } from '../context/AuthContext'
 
@@ -42,6 +42,12 @@ const ERRORES: Record<string, string> = {
   usuario_no_encontrado: 'No se encontró el usuario.',
 }
 
+const ESTADO_DENUNCIA: Record<DenunciaAdmin['estado'], { texto: string; color: string }> = {
+  pendiente: { texto: 'Pendiente', color: 'warning' },
+  resuelta: { texto: 'Resuelta (usuario suspendido)', color: 'danger' },
+  descartada: { texto: 'Descartada', color: 'secondary' },
+}
+
 function fecha(valor: string): string {
   return new Date(valor).toLocaleString('es-GT', {
     timeZone: 'America/Guatemala',
@@ -55,19 +61,27 @@ function Moderacion() {
   const [denuncias, setDenuncias] = useState<DenunciaAdmin[]>([])
   const [apelaciones, setApelaciones] = useState<ApelacionAdmin[]>([])
   const [usuarios, setUsuarios] = useState<UsuarioLista[]>([])
-  const [cargando, setCargando] = useState(true)
+  const [primeraCarga, setPrimeraCarga] = useState(true)
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'danger'; texto: string } | null>(null)
+
+  // Pestaña activa (se conserva al recargar los datos) y filtro de historial
+  const [pestana, setPestana] = useState('denuncias')
+  const [historial, setHistorial] = useState(false)
 
   // Fila con formulario de motivo abierto: "denuncia:ID" o "usuario:ID"
   const [abierto, setAbierto] = useState<string | null>(null)
   const [motivo, setMotivo] = useState('')
   const [enviando, setEnviando] = useState(false)
 
+  // Historial de reportes de un usuario (pestaña Usuarios)
+  const [reportesDe, setReportesDe] = useState<string | null>(null)
+  const [reportes, setReportes] = useState<DenunciaAdmin[] | null>(null)
+
   const cargar = useCallback(async () => {
-    setCargando(true)
     try {
+      const estadoDenuncias = historial ? '?estado=todas' : ''
       const [rd, ra, ru] = await Promise.all([
-        peticion('/api/moderacion/denuncias'),
+        peticion(`/api/moderacion/denuncias${estadoDenuncias}`),
         peticion('/api/moderacion/apelaciones'),
         peticion('/api/moderacion/usuarios'),
       ])
@@ -77,9 +91,9 @@ function Moderacion() {
     } catch {
       setMensaje({ tipo: 'danger', texto: 'No se pudo cargar la moderación.' })
     } finally {
-      setCargando(false)
+      setPrimeraCarga(false)
     }
-  }, [peticion])
+  }, [peticion, historial])
 
   useEffect(() => {
     void cargar()
@@ -107,6 +121,21 @@ function Moderacion() {
       setMensaje({ tipo: 'danger', texto: 'Error de conexión con el servidor.' })
     } finally {
       setEnviando(false)
+    }
+  }
+
+  async function verReportes(usuarioId: string): Promise<void> {
+    if (reportesDe === usuarioId) {
+      setReportesDe(null)
+      return
+    }
+    setReportesDe(usuarioId)
+    setReportes(null)
+    try {
+      const r = await peticion(`/api/moderacion/denuncias?usuario=${usuarioId}`)
+      setReportes(r.ok ? ((await r.json()) as { denuncias: DenunciaAdmin[] }).denuncias : [])
+    } catch {
+      setReportes([])
     }
   }
 
@@ -139,13 +168,15 @@ function Moderacion() {
     )
   }
 
-  if (cargando) {
+  if (primeraCarga) {
     return (
       <div className="text-center py-4">
         <Spinner animation="border" />
       </div>
     )
   }
+
+  const pendientes = denuncias.filter(d => d.estado === 'pendiente').length
 
   return (
     <div>
@@ -155,10 +186,20 @@ function Moderacion() {
         </Alert>
       )}
 
-      <Tabs defaultActiveKey="denuncias" className="mb-3">
-        <Tab eventKey="denuncias" title={`Denuncias (${denuncias.length})`}>
+      <Tabs activeKey={pestana} onSelect={(k) => setPestana(k ?? 'denuncias')} className="mb-3">
+        <Tab eventKey="denuncias" title={`Denuncias (${pendientes})`}>
+          <Form.Check
+            type="switch"
+            id="ver-historial"
+            className="mb-3"
+            label="Ver historial completo (incluye resueltas y descartadas)"
+            checked={historial}
+            onChange={(e) => setHistorial(e.target.checked)}
+          />
           {denuncias.length === 0 ? (
-            <p className="text-muted">No hay denuncias pendientes.</p>
+            <p className="text-muted">
+              {historial ? 'No hay denuncias registradas.' : 'No hay denuncias pendientes.'}
+            </p>
           ) : (
             denuncias.map((d) => (
               <div key={d._id} className="border rounded p-3 mb-3">
@@ -168,33 +209,40 @@ function Moderacion() {
                     <strong>{d.denunciado?.nombre ?? 'Usuario eliminado'}</strong>{' '}
                     {d.denunciado?.estado === 'suspendido' && <Badge bg="danger">Ya suspendido</Badge>}
                   </div>
-                  <small className="text-muted">{fecha(d.createdAt)}</small>
+                  <div className="d-flex align-items-center gap-2">
+                    <Badge bg={ESTADO_DENUNCIA[d.estado].color}>{ESTADO_DENUNCIA[d.estado].texto}</Badge>
+                    <small className="text-muted">{fecha(d.createdAt)}</small>
+                  </div>
                 </div>
                 {d.tutoria && (
                   <small className="text-muted d-block">Clase del {fecha(d.tutoria.inicio)}</small>
                 )}
                 <p className="my-2">{d.motivo}</p>
-                <div className="d-flex gap-2">
-                  <Button size="sm" variant="danger" onClick={() => abrirMotivo(`denuncia:${d._id}`)}>
-                    Suspender al denunciado
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    disabled={enviando}
-                    onClick={() =>
-                      void ejecutar(`/api/moderacion/denuncias/${d._id}`, { accion: 'descartar' }, 'Denuncia descartada.')
-                    }
-                  >
-                    Descartar
-                  </Button>
-                </div>
-                {formularioMotivo(`denuncia:${d._id}`, () =>
-                  void ejecutar(
-                    `/api/moderacion/denuncias/${d._id}`,
-                    { accion: 'suspender', motivo: motivo.trim() },
-                    'Usuario suspendido y denuncia resuelta.',
-                  ),
+                {d.estado === 'pendiente' && (
+                  <>
+                    <div className="d-flex gap-2">
+                      <Button size="sm" variant="danger" onClick={() => abrirMotivo(`denuncia:${d._id}`)}>
+                        Suspender al denunciado
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline-secondary"
+                        disabled={enviando}
+                        onClick={() =>
+                          void ejecutar(`/api/moderacion/denuncias/${d._id}`, { accion: 'descartar' }, 'Denuncia descartada.')
+                        }
+                      >
+                        Descartar
+                      </Button>
+                    </div>
+                    {formularioMotivo(`denuncia:${d._id}`, () =>
+                      void ejecutar(
+                        `/api/moderacion/denuncias/${d._id}`,
+                        { accion: 'suspender', motivo: motivo.trim() },
+                        'Usuario suspendido y denuncia resuelta.',
+                      ),
+                    )}
+                  </>
                 )}
               </div>
             ))
@@ -260,45 +308,79 @@ function Moderacion() {
             </thead>
             <tbody>
               {usuarios.map((u) => (
-                <tr key={u._id}>
-                  <td>{u.nombre}</td>
-                  <td>{u.correo}</td>
-                  <td>{u.rol}</td>
-                  <td>
-                    <Badge bg={u.estado === 'suspendido' ? 'danger' : 'success'}>
-                      {u.estado === 'suspendido' ? 'Suspendido' : 'Activo'}
-                    </Badge>
-                  </td>
-                  <td style={{ minWidth: 220 }}>
-                    {u.rol === 'admin' ? (
-                      <small className="text-muted">—</small>
-                    ) : u.estado === 'suspendido' ? (
-                      <Button
-                        size="sm"
-                        variant="outline-success"
-                        disabled={enviando}
-                        onClick={() =>
-                          void ejecutar(`/api/moderacion/usuarios/${u._id}/reactivar`, null, 'Usuario reactivado.')
-                        }
-                      >
-                        Reactivar
-                      </Button>
-                    ) : (
-                      <>
-                        <Button size="sm" variant="outline-danger" onClick={() => abrirMotivo(`usuario:${u._id}`)}>
-                          Suspender
+                <Fragment key={u._id}>
+                  <tr>
+                    <td>{u.nombre}</td>
+                    <td>{u.correo}</td>
+                    <td>{u.rol}</td>
+                    <td>
+                      <Badge bg={u.estado === 'suspendido' ? 'danger' : 'success'}>
+                        {u.estado === 'suspendido' ? 'Suspendido' : 'Activo'}
+                      </Badge>
+                    </td>
+                    <td style={{ minWidth: 260 }}>
+                      <div className="d-flex gap-2 flex-wrap">
+                        <Button size="sm" variant="outline-secondary" onClick={() => void verReportes(u._id)}>
+                          {reportesDe === u._id ? 'Ocultar reportes' : 'Ver reportes'}
                         </Button>
-                        {formularioMotivo(`usuario:${u._id}`, () =>
-                          void ejecutar(
-                            `/api/moderacion/usuarios/${u._id}/suspender`,
-                            { motivo: motivo.trim() },
-                            'Usuario suspendido.',
-                          ),
+                        {u.rol === 'admin' ? null : u.estado === 'suspendido' ? (
+                          <Button
+                            size="sm"
+                            variant="outline-success"
+                            disabled={enviando}
+                            onClick={() =>
+                              void ejecutar(`/api/moderacion/usuarios/${u._id}/reactivar`, null, 'Usuario reactivado.')
+                            }
+                          >
+                            Reactivar
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="outline-danger" onClick={() => abrirMotivo(`usuario:${u._id}`)}>
+                            Suspender
+                          </Button>
                         )}
-                      </>
-                    )}
-                  </td>
-                </tr>
+                      </div>
+                      {formularioMotivo(`usuario:${u._id}`, () =>
+                        void ejecutar(
+                          `/api/moderacion/usuarios/${u._id}/suspender`,
+                          { motivo: motivo.trim() },
+                          'Usuario suspendido.',
+                        ),
+                      )}
+                    </td>
+                  </tr>
+                  {reportesDe === u._id && (
+                    <tr>
+                      <td colSpan={5} className="bg-light">
+                        {reportes === null ? (
+                          <Spinner animation="border" size="sm" />
+                        ) : reportes.length === 0 ? (
+                          <small className="text-muted">Este usuario no tiene reportes.</small>
+                        ) : (
+                          reportes.map((d) => {
+                            const recibido = d.denunciado?._id === u._id
+                            return (
+                              <div key={d._id} className="border-bottom py-2">
+                                <div className="d-flex justify-content-between flex-wrap gap-2">
+                                  <span>
+                                    {recibido
+                                      ? `Recibido de ${d.denunciante?.nombre ?? 'usuario eliminado'}`
+                                      : `Enviado contra ${d.denunciado?.nombre ?? 'usuario eliminado'}`}
+                                  </span>
+                                  <span className="d-flex align-items-center gap-2">
+                                    <Badge bg={ESTADO_DENUNCIA[d.estado].color}>{ESTADO_DENUNCIA[d.estado].texto}</Badge>
+                                    <small className="text-muted">{fecha(d.createdAt)}</small>
+                                  </span>
+                                </div>
+                                <div>{d.motivo}</div>
+                              </div>
+                            )
+                          })
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </tbody>
           </Table>

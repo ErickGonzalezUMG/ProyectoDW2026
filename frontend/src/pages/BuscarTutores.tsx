@@ -25,6 +25,7 @@ function BuscarTutores() {
   const [precioMin, setPrecioMin] = useState<string>('')
   const [precioMax, setPrecioMax] = useState<string>('')
   const [calificacionMin, setCalificacionMin] = useState<string>('')
+  const [resenasMin, setResenasMin] = useState<string>('')
 
   const [origen, setOrigen] = useState<Coordenada | null>(null)
   const [resultados, setResultados] = useState<ResultadoBusqueda[]>([])
@@ -72,6 +73,7 @@ function BuscarTutores() {
     if (precioMin) params.set('precioMin', precioMin)
     if (precioMax) params.set('precioMax', precioMax)
     if (calificacionMin) params.set('calificacionMin', calificacionMin)
+    if (resenasMin) params.set('resenasMin', resenasMin)
     if (modalidad) params.set('modalidad', modalidad)
     const categoria = subcategoria || principal
     if (categoria) params.set('categoria', categoria)
@@ -202,6 +204,17 @@ function BuscarTutores() {
                 <option value="3">3 o más</option>
                 <option value="4">4 o más</option>
                 <option value="4.5">4.5 o más</option>
+              </Form.Select>
+            </Col>
+
+            <Col md={2}>
+              <Form.Label>Reseñas</Form.Label>
+              <Form.Select value={resenasMin} onChange={e => setResenasMin(e.target.value)}>
+                <option value="">Cualquiera</option>
+                <option value="1">1 o más</option>
+                <option value="3">3 o más</option>
+                <option value="5">5 o más</option>
+                <option value="10">10 o más</option>
               </Form.Select>
             </Col>
 

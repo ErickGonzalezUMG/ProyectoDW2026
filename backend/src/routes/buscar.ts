@@ -84,6 +84,7 @@ router.get(
     const modalidad = texto(req.query.modalidad)
     const categoria = texto(req.query.categoria)
     const minCalificacion = numero(req.query.calificacionMin)
+    const minResenas = numero(req.query.resenasMin)
 
     const filtro: Record<string, unknown> = { activa: true }
 
@@ -133,6 +134,7 @@ router.get(
       const promedio = stat ? redondear(stat.promedio) : 0
       const cantidad = stat ? stat.cantidad : 0
       if (minCalificacion !== null && promedio < minCalificacion) continue
+      if (minResenas !== null && cantidad < minResenas) continue
 
       const presencial = o.modalidad !== 'virtual'
       let distancia: number | null = null
