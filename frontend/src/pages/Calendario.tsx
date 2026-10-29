@@ -8,6 +8,7 @@ import type { EventClickArg, EventInput } from '@fullcalendar/core'
 import { useAuth } from '../context/AuthContext'
 import Ventana from '../components/Ventana'
 import ResenaClase from '../components/ResenaClase'
+import DenunciarClase from '../components/DenunciarClase'
 import type { Tutoria, EstadoTutoria } from '../types'
 
 type CambioEstado = 'aprobada' | 'rechazada' | 'cancelada'
@@ -259,6 +260,7 @@ function Calendario() {
               )}
               <p className="mb-0"><strong>Total:</strong> Q{seleccionada.total.toFixed(2)}</p>
               <ResenaClase tutoria={seleccionada} />
+              <DenunciarClase tutoria={seleccionada} />
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={cerrarDetalle}>Cerrar</Button>

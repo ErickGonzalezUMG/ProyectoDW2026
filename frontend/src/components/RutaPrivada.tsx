@@ -15,6 +15,10 @@ function RutaPrivada({ children, roles }: Props) {
     return <Navigate to="/login" replace />
   }
 
+  if (estado.usuario.estado === 'suspendido') {
+    return <Navigate to="/suspendido" replace />
+  }
+
   if (!estado.usuario.perfilCompleto) {
     return <Navigate to="/onboarding" replace />
   }

@@ -6,6 +6,7 @@ export interface Usuario {
   rol: 'estudiante' | 'tutor' | 'admin'
   perfilCompleto: boolean
   aprobado: boolean
+  estado?: 'activo' | 'suspendido'
 }
 
 export interface Categoria {
@@ -92,4 +93,17 @@ export interface Resena {
   estudiante: string
   calificacion: number
   comentario: string
+}
+
+export interface SuspensionInfo {
+  _id: string
+  motivo: string
+  createdAt: string
+}
+
+export interface ApelacionInfo {
+  _id: string
+  mensaje: string
+  estado: 'pendiente' | 'aceptada' | 'rechazada'
+  createdAt: string
 }

@@ -7,9 +7,10 @@ function BarraNavegacion() {
   const { estado, dispatch } = useAuth()
   const usuario = estado.usuario
   const conSesion = estado.isAuthenticated && usuario !== null
-  const esAdmin = conSesion && usuario.rol === 'admin'
-  const puedeBuscar = conSesion && (usuario.rol === 'estudiante' || esAdmin)
-  const puedeOfertar = conSesion && (usuario.rol === 'tutor' || esAdmin)
+  const activo = conSesion && usuario.estado !== 'suspendido'
+  const esAdmin = activo && usuario.rol === 'admin'
+  const puedeBuscar = activo && (usuario.rol === 'estudiante' || esAdmin)
+  const puedeOfertar = activo && (usuario.rol === 'tutor' || esAdmin)
 
   return (
     <Navbar variant="dark" expand="md" className="barra-principal">
@@ -20,12 +21,12 @@ function BarraNavegacion() {
         <Navbar.Toggle />
         <Navbar.Collapse>
           <Nav className="me-auto">
-            {conSesion && (
+            {activo && (
               <Nav.Link as={Link} to="/">
                 <i className="bi bi-house-door me-1"></i>Inicio
               </Nav.Link>
             )}
-            {conSesion && (
+            {activo && (
               <Nav.Link as={Link} to="/calendario">
                 <i className="bi bi-calendar3 me-1"></i>Calendario
               </Nav.Link>
@@ -50,6 +51,9 @@ function BarraNavegacion() {
                 <i className="bi bi-gear me-1"></i>Administración
               </Nav.Link>
             )}
+            <Nav.Link as={Link} to="/politicas">
+              <i className="bi bi-shield-check me-1"></i>Políticas
+            </Nav.Link>
           </Nav>
           {conSesion ? (
             <>

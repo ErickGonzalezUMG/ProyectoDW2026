@@ -10,6 +10,8 @@ import MisOfertas from './pages/MisOfertas'
 import BuscarTutores from './pages/BuscarTutores'
 import Disponibilidad from './pages/Disponibilidad'
 import Calendario from './pages/Calendario'
+import Suspendido from './pages/Suspendido'
+import Politicas from './pages/Politicas'
 
 function App() {
   return (
@@ -20,11 +22,13 @@ function App() {
         <Route path="/" element={<RutaPrivada><Inicio /></RutaPrivada>} />
         <Route path="/login" element={<Login />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/suspendido" element={<Suspendido />} />
+        <Route path="/politicas" element={<Politicas />} />
         <Route path="/admin" element={<RutaPrivada roles={['admin']}><Admin /></RutaPrivada>} />
         <Route path="/ofertas" element={<RutaPrivada roles={['tutor', 'admin']}><MisOfertas /></RutaPrivada>} />
+        <Route path="/disponibilidad" element={<RutaPrivada roles={['tutor', 'admin']}><Disponibilidad /></RutaPrivada>} />
         <Route path="/buscar" element={<RutaPrivada roles={['estudiante', 'admin']}><BuscarTutores /></RutaPrivada>} />
         <Route path="/calendario" element={<RutaPrivada><Calendario /></RutaPrivada>} />
-        <Route path="/disponibilidad" element={<RutaPrivada roles={['tutor', 'admin']}><Disponibilidad /></RutaPrivada>} />
       </Routes>
     </BrowserRouter>
   )

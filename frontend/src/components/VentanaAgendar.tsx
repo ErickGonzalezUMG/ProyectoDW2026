@@ -29,6 +29,8 @@ const DIAS = [
 
 const NOMBRE_CORTO: string[] = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
+const DIAS_PLURAL: string[] = ['domingos', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados']
+
 const HORAS: number[] = Array.from({ length: 16 }, (_, i) => i + 6)
 
 const MENSAJES: Record<string, string> = {
@@ -54,6 +56,11 @@ function formatoHora(h: number): string {
   return `${String(h).padStart(2, '0')}:00`
 }
 
+function diaDeFecha(fecha: string): number {
+  const [a, m, d] = fecha.split('-').map(Number)
+  return new Date(Date.UTC(a, m - 1, d)).getUTCDay()
+}
+
 function VentanaAgendar({ oferta, distanciaKm, onCerrar }: Props) {
   const { peticion } = useAuth()
 
@@ -63,6 +70,7 @@ function VentanaAgendar({ oferta, distanciaKm, onCerrar }: Props) {
   const [horas, setHoras] = useState<string>('1')
   const [dias, setDias] = useState<number[]>([])
   const [disponibilidad, setDisponibilidad] = useState<BloqueDisponibilidad[]>([])
+  const [cargada, setCargada] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const [exito, setExito] = useState<string>('')
   const [enviando, setEnviando] = useState<boolean>(false)
@@ -76,6 +84,7 @@ function VentanaAgendar({ oferta, distanciaKm, onCerrar }: Props) {
     setError('')
     setExito('')
     setDisponibilidad([])
+    setCargada(false)
 
     if (!oferta) return
 
@@ -84,6 +93,7 @@ function VentanaAgendar({ oferta, distanciaKm, onCerrar }: Props) {
       if (res.ok) {
         const datos = await res.json()
         setDisponibilidad(datos.bloques)
+        setCargada(true)
       }
     }
     cargar()
@@ -91,6 +101,44 @@ function VentanaAgendar({ oferta, distanciaKm, onCerrar }: Props) {
 
   function alternarDia(n: number): void {
     setDias(prev => (prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]))
+  }
+
+  function problemaDelDia(dia: number): string | null {
+    const bloques = disponibilidad.filter(b => b.diaSemana === dia)
+    const nombre = DIAS_PLURAL[dia]
+    const etiqueta = nombre.charAt(0).toUpperCase() + nombre.slice(1)
+
+    if (bloques.length === 0) {
+      return `El tutor no atiende los ${nombre}.`
+    }
+
+    const inicio = Number(hora)
+    const fin = inicio + Number(horas)
+    const cubre = bloques.some(b => b.horaInicio <= inicio && b.horaFin >= fin)
+
+    if (!cubre) {
+      const rangos = bloques.map(b => `de ${formatoHora(b.horaInicio)} a ${formatoHora(b.horaFin)}`).join(' y ')
+      return `${etiqueta} el tutor atiende ${rangos}, y su selección es de ${formatoHora(inicio)} a ${formatoHora(fin)}.`
+    }
+
+    return null
+  }
+
+  const avisos: string[] = []
+  if (cargada) {
+    if (disponibilidad.length === 0) {
+      avisos.push('El tutor aún no ha definido horarios de disponibilidad.')
+    } else if (tipo === 'unica') {
+      if (fecha) {
+        const p = problemaDelDia(diaDeFecha(fecha))
+        if (p) avisos.push(p)
+      }
+    } else {
+      dias.forEach(d => {
+        const p = problemaDelDia(d)
+        if (p) avisos.push(p)
+      })
+    }
   }
 
   async function enviar(e: React.FormEvent): Promise<void> {
@@ -230,6 +278,18 @@ function VentanaAgendar({ oferta, distanciaKm, onCerrar }: Props) {
                   </Col>
                 </Row>
 
+                {avisos.length > 0 && (
+                  <Alert variant="warning" className="small">
+                    <i className="bi bi-exclamation-triangle me-1"></i>
+                    <strong>Revise la disponibilidad del tutor:</strong>
+                    <ul className="mb-0 mt-1 ps-3">
+                      {avisos.map(a => (
+                        <li key={a}>{a}</li>
+                      ))}
+                    </ul>
+                  </Alert>
+                )}
+
                 <div className="border rounded p-2 small">
                   <div className="d-flex justify-content-between">
                     <span>Tarifa ({horas} h × Q{oferta.tarifaHora.toFixed(2)})</span>
@@ -259,7 +319,7 @@ function VentanaAgendar({ oferta, distanciaKm, onCerrar }: Props) {
             ) : (
               <>
                 <Button variant="secondary" onClick={onCerrar}>Cancelar</Button>
-                <Button type="submit" disabled={enviando}>
+                <Button type="submit" disabled={enviando || avisos.length > 0}>
                   {enviando ? 'Enviando...' : 'Solicitar'}
                 </Button>
               </>

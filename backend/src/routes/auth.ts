@@ -18,6 +18,7 @@ function datosPublicos(usuario: InstanceType<typeof Usuario>) {
     rol: usuario.rol,
     perfilCompleto: usuario.perfilCompleto,
     aprobado: usuario.aprobado,
+    estado: usuario.estado,
   }
 }
 
@@ -49,11 +50,6 @@ router.post('/google', async (req: Request, res: Response): Promise<void> => {
         correo: datos.email.toLowerCase(),
         foto: datos.picture || '',
       })
-    }
-
-    if (usuario.estado === 'suspendido') {
-      res.status(403).json({ error: 'cuenta_suspendida' })
-      return
     }
 
     const token = jwt.sign(

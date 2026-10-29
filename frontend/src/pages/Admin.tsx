@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AdminCategorias from '../components/AdminCategorias'
 import AdminTutores from '../components/AdminTutores'
+import Moderacion from '../components/Moderacion'
 
 function Admin() {
   const { estado } = useAuth()
@@ -23,6 +24,9 @@ function Admin() {
           </Tab>
           <Tab eventKey="tutores" title="Tutores">
             <AdminTutores />
+          </Tab>
+          <Tab eventKey="moderacion" title="Moderación" mountOnEnter>
+            <Moderacion />
           </Tab>
         </Tabs>
       </div>

@@ -12,6 +12,9 @@ import disponibilidadRoutes from './routes/disponibilidad'
 import tutoriasRoutes from './routes/tutorias'
 import suscripcionesRoutes from './routes/suscripciones'
 import resenasRoutes from './routes/resenas'
+import denunciasRoutes from './routes/denuncias'
+import apelacionesRoutes from './routes/apelaciones'
+import moderacionRoutes from './routes/moderacion'
 
 const app = express()
 
@@ -34,6 +37,9 @@ app.use('/api/disponibilidad', disponibilidadRoutes)
 app.use('/api/tutorias', tutoriasRoutes)
 app.use('/api/suscripciones', suscripcionesRoutes)
 app.use('/api/resenas', resenasRoutes)
+app.use('/api/denuncias', denunciasRoutes)
+app.use('/api/apelaciones', apelacionesRoutes)
+app.use('/api/moderacion', moderacionRoutes)
 
 const PORT = Number(process.env.PORT) || 3001
 
