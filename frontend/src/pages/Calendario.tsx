@@ -11,6 +11,16 @@ import ResenaClase from '../components/ResenaClase'
 import DenunciarClase from '../components/DenunciarClase'
 import type { Tutoria, EstadoTutoria } from '../types'
 
+function usarEsMovil(): boolean {
+  const [movil, setMovil] = useState<boolean>(window.innerWidth < 768)
+  useEffect(() => {
+    const alCambiar = () => setMovil(window.innerWidth < 768)
+    window.addEventListener('resize', alCambiar)
+    return () => window.removeEventListener('resize', alCambiar)
+  }, [])
+  return movil
+}
+
 type CambioEstado = 'aprobada' | 'rechazada' | 'cancelada'
 
 const COLORES: Record<EstadoTutoria, string> = {
@@ -60,6 +70,7 @@ function estadoVisible(t: Tutoria): EstadoTutoria {
 
 function Calendario() {
   const { estado: sesion, peticion } = useAuth()
+  const esMovil = usarEsMovil()
   const rol = sesion.usuario?.rol
 
   const [tutorias, setTutorias] = useState<Tutoria[]>([])
@@ -214,13 +225,14 @@ function Calendario() {
         </div>
 
         <FullCalendar
+          key={esMovil ? 'movil' : 'escritorio'}
           plugins={[dayGridPlugin, timeGridPlugin]}
-          initialView="timeGridWeek"
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay',
-          }}
+          initialView={esMovil ? 'timeGridDay' : 'timeGridWeek'}
+          headerToolbar={
+            esMovil
+              ? { left: 'prev,next', center: 'title', right: 'timeGridDay,dayGridMonth' }
+              : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }
+          }
           locale={esLocale}
           events={eventos}
           eventClick={alHacerClic}

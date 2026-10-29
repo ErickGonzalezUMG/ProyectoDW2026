@@ -76,7 +76,7 @@ function TablaRanking({
         {filas.length === 0 ? (
           <p className="text-muted mb-0">Aún no hay suficientes reseñas.</p>
         ) : (
-          <Table size="sm" className="mb-0 align-middle">
+          <Table responsive size="sm" className="mb-0 align-middle">
             <tbody>
               {filas.map(t => (
                 <tr key={t.id}>
@@ -281,7 +281,7 @@ function Analiticas() {
                   </Card.Title>
                   <small className="text-muted">Impartidas frente a canceladas y rechazadas</small>
                 </div>
-                <div className="d-flex gap-2">
+                <div className="d-flex gap-2 flex-wrap">
                   <Form.Select
                     size="sm"
                     style={{ width: 130 }}

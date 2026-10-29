@@ -7,15 +7,23 @@ import { validarToken } from '../middleware/validarToken'
 import type { RequestAutenticado } from '../middleware/validarToken'
 import { permitirRoles } from '../middleware/permitirRoles'
 
+const TIPOS = ['inasistencia', 'conducta_inapropiada', 'cobros_indebidos'] as const
+
 const router = Router()
 
 router.use(validarToken)
 
 router.post('/', permitirRoles('estudiante', 'tutor'), async (req: RequestAutenticado, res: Response): Promise<void> => {
-  const d = req.body as { tutoria?: string; motivo?: string }
+  const d = req.body as { tutoria?: string; tipo?: string; motivo?: string }
 
   if (!d.tutoria || !Types.ObjectId.isValid(d.tutoria)) {
     res.status(400).json({ error: 'tutoria_invalida' })
+    return
+  }
+
+  const tipo = TIPOS.find(t => t === d.tipo)
+  if (!tipo) {
+    res.status(400).json({ error: 'tipo_invalido' })
     return
   }
 
@@ -57,6 +65,7 @@ router.post('/', permitirRoles('estudiante', 'tutor'), async (req: RequestAutent
     tutoria: tutoria._id,
     denunciante,
     denunciado: esTutor ? tutoria.estudiante : tutoria.tutor,
+    tipo,
     motivo,
   })
 

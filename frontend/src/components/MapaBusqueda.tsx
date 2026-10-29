@@ -64,7 +64,7 @@ function MapaBusqueda({ origen, radio, resultados, seleccionado, ruta = null, on
     <MapContainer
       center={[origen.lat, origen.lng]}
       zoom={13}
-      style={{ height: '520px', width: '100%', borderRadius: '12px' }}
+      style={{ height: 'clamp(320px, 60vh, 520px)', width: '100%', borderRadius: '12px' }}
     >
       <TileLayer
         attribution="&copy; OpenStreetMap"

@@ -57,7 +57,7 @@ function BarraNavegacion() {
           </Nav>
           {conSesion ? (
             <>
-              <span className="text-light me-3 d-flex align-items-center">
+              <span className="text-light me-md-3 mt-2 mt-md-0 mb-2 mb-md-0 d-flex align-items-center">
                 {usuario.foto && (
                   <img src={usuario.foto} alt="" className="avatar" referrerPolicy="no-referrer" />
                 )}

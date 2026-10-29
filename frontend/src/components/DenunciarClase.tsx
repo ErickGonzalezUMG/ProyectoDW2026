@@ -9,7 +9,8 @@ interface Props {
 
 const MENSAJES: Record<string, string> = {
   ya_denunciada: 'Usted ya presentó una denuncia sobre esta clase.',
-  motivo_invalido: 'Describa el motivo con entre 10 y 500 caracteres.',
+  tipo_invalido: 'Seleccione el tipo de denuncia.',
+  motivo_invalido: 'Describa lo ocurrido con entre 10 y 500 caracteres.',
   no_permitido: 'Solo quienes participaron en la clase pueden denunciar.',
   clase_no_realizada: 'Solo se puede denunciar una clase que ya se realizó.',
 }
@@ -18,6 +19,7 @@ function DenunciarClase({ tutoria }: Props) {
   const { estado: sesion, peticion } = useAuth()
 
   const [abierto, setAbierto] = useState<boolean>(false)
+  const [tipo, setTipo] = useState<string>('')
   const [motivo, setMotivo] = useState<string>('')
   const [error, setError] = useState<string>('')
   const [exito, setExito] = useState<string>('')
@@ -25,6 +27,7 @@ function DenunciarClase({ tutoria }: Props) {
 
   useEffect(() => {
     setAbierto(false)
+    setTipo('')
     setMotivo('')
     setError('')
     setExito('')
@@ -59,7 +62,7 @@ function DenunciarClase({ tutoria }: Props) {
     setEnviando(true)
     const res = await peticion('/api/denuncias', {
       method: 'POST',
-      body: JSON.stringify({ tutoria: tutoria._id, motivo }),
+      body: JSON.stringify({ tutoria: tutoria._id, tipo, motivo }),
     })
     setEnviando(false)
     const datos = await res.json()
@@ -67,6 +70,7 @@ function DenunciarClase({ tutoria }: Props) {
     if (res.ok) {
       setExito('Su denuncia fue enviada. El administrador la revisará.')
       setAbierto(false)
+      setTipo('')
       setMotivo('')
       return
     }
@@ -91,11 +95,17 @@ function DenunciarClase({ tutoria }: Props) {
     <Form onSubmit={enviar} className="border-top mt-3 pt-3">
       <strong>Denunciar a {otro.nombre}</strong>
       {error && <Alert variant="danger" className="mt-2 mb-2">{error}</Alert>}
+      <Form.Select value={tipo} onChange={e => setTipo(e.target.value)} className="mt-2" required>
+        <option value="">Seleccione el tipo de denuncia</option>
+        <option value="inasistencia">Inasistencia</option>
+        <option value="conducta_inapropiada">Conducta inapropiada</option>
+        <option value="cobros_indebidos">Cobros indebidos</option>
+      </Form.Select>
       <Form.Control
         as="textarea"
         rows={3}
         maxLength={500}
-        placeholder="Describa lo ocurrido durante la clase"
+        placeholder="Describa lo ocurrido y aporte la evidencia que tenga"
         value={motivo}
         onChange={e => setMotivo(e.target.value)}
         className="my-2"

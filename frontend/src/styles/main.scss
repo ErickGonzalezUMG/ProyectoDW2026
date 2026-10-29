@@ -132,3 +132,31 @@ body {
     }
   }
 }
+
+// Pestañas que se desplazan horizontalmente en pantallas angostas
+.pestanas-scroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  .nav-link {
+    white-space: nowrap;
+  }
+}
+
+// Ajustes para celulares (menos de 768 px)
+@media (max-width: 767.98px) {
+  .fc .fc-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 1.1rem;
+  }
+
+  .tarjeta {
+    padding: 1rem;
+  }
+}

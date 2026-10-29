@@ -12,6 +12,7 @@ interface PersonaResumen {
 
 interface DenunciaAdmin {
   _id: string
+  tipo?: 'inasistencia' | 'conducta_inapropiada' | 'cobros_indebidos'
   motivo: string
   estado: 'pendiente' | 'resuelta' | 'descartada'
   createdAt: string
@@ -46,6 +47,16 @@ const ESTADO_DENUNCIA: Record<DenunciaAdmin['estado'], { texto: string; color: s
   pendiente: { texto: 'Pendiente', color: 'warning' },
   resuelta: { texto: 'Resuelta (usuario suspendido)', color: 'danger' },
   descartada: { texto: 'Descartada', color: 'secondary' },
+}
+
+const TIPO_DENUNCIA: Record<string, string> = {
+  inasistencia: 'Inasistencia',
+  conducta_inapropiada: 'Conducta inapropiada',
+  cobros_indebidos: 'Cobros indebidos',
+}
+
+function etiquetaTipo(tipo?: string): string {
+  return (tipo && TIPO_DENUNCIA[tipo]) || 'Sin tipo'
 }
 
 function fecha(valor: string): string {
@@ -186,7 +197,7 @@ function Moderacion() {
         </Alert>
       )}
 
-      <Tabs activeKey={pestana} onSelect={(k) => setPestana(k ?? 'denuncias')} className="mb-3">
+      <Tabs activeKey={pestana} onSelect={(k) => setPestana(k ?? 'denuncias')} className="mb-3 pestanas-scroll">
         <Tab eventKey="denuncias" title={`Denuncias (${pendientes})`}>
           <Form.Check
             type="switch"
@@ -217,7 +228,10 @@ function Moderacion() {
                 {d.tutoria && (
                   <small className="text-muted d-block">Clase del {fecha(d.tutoria.inicio)}</small>
                 )}
-                <p className="my-2">{d.motivo}</p>
+                <p className="my-2">
+                  <Badge bg="dark" className="me-2">{etiquetaTipo(d.tipo)}</Badge>
+                  {d.motivo}
+                </p>
                 {d.estado === 'pendiente' && (
                   <>
                     <div className="d-flex gap-2">
@@ -372,7 +386,10 @@ function Moderacion() {
                                     <small className="text-muted">{fecha(d.createdAt)}</small>
                                   </span>
                                 </div>
-                                <div>{d.motivo}</div>
+                                <div>
+                                  <Badge bg="dark" className="me-2">{etiquetaTipo(d.tipo)}</Badge>
+                                  {d.motivo}
+                                </div>
                               </div>
                             )
                           })

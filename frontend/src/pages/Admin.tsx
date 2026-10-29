@@ -19,7 +19,7 @@ function Admin() {
         <i className="bi bi-gear"></i>Panel de administración
       </h2>
       <div className="tarjeta">
-        <Tabs defaultActiveKey="categorias" className="mb-4">
+        <Tabs defaultActiveKey="categorias" className="mb-4 pestanas-scroll">
           <Tab eventKey="categorias" title="Categorías">
             <AdminCategorias />
           </Tab>
